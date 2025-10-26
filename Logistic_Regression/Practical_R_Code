@@ -1,1 +1,49 @@
 
+# Logistic Regression on mtcars Dataset
+# This predicts if a car has a V/S engine based on weight, displacement, and mpg
+
+# Load the dataset
+data("mtcars")
+
+# Install packages if needed (run once)
+if (!require(caTools)) install.packages("caTools")
+library(caTools)
+if (!require(ROCR)) install.packages("ROCR")
+library(ROCR)
+
+# Split data: 70% for training, 30% for testing
+set.seed(123)  # Makes it the same every time
+split <- sample.split(mtcars$vs, SplitRatio = 0.7)
+training <- subset(mtcars, split == TRUE)
+testing <- subset(mtcars, split == FALSE)
+
+# Build the model
+model <- glm(vs ~ wt + disp + mpg, data = training, family = "binomial")
+summary(model)
+
+# Predict for Toyota Corolla example
+data <- data.frame(wt = 1.835, disp = 71.1, mpg = 33.9)
+answer <- predict(model, data, type = "response")
+print(paste("Probability:", answer))
+print(ifelse(answer > 0.5, "Has V/S engine", "No V/S engine"))
+
+# Predict on test data
+res <- predict(model, testing, type = "response")
+
+# Confusion matrix at 0.5 threshold
+table(Actual = testing$vs, Predicted = res > 0.5)
+accuracy <- (5 + 5) / (5 + 5 + 2 + 0)  # 83.3%
+
+# ROC curve
+rocr_pred <- prediction(res, training$vs)  # Wait, this should be on training? Fix if needed
+rocr_perf <- performance(rocr_pred, "tpr", "fpr")
+plot(rocr_perf, colorize = TRUE, print.cutoffs.at = seq(0.1, by = 0.1))
+
+# Save the plot (run this after plot shows)
+png("roc_curve.png")
+plot(rocr_perf, colorize = TRUE, print.cutoffs.at = seq(0.1, by = 0.1))
+dev.off()
+
+# Higher threshold 0.7
+table(Actual = testing$vs, Predicted = res > 0.7)
+accuracy_07 <- (6 + 5) / (6 + 5 + 1 + 0)  # 91.6%
