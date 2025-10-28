@@ -14,4 +14,4 @@ Linear assumes a straight line between inputs and output.
 
 In this practical, we used Boston housing data to predict house prices (medv) from features like rooms (rm) and crime rate (crim).
 
-Steps: Split data, check correlations, fix multicollinearity with VIF, build model, predict, and plot results.
+Steps: Split data, check correlations, fix multicollinearity with VIF, build model, optimize model, predict, and plot results.
